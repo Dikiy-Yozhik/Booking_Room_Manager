@@ -1,0 +1,9 @@
+<h2>Мои брони</h2>
+<ul>
+  {% for b in bookings %}
+  <li>
+    {{ b.room }} | {{ b.date }} | {{ b.start_time }} - {{ b.end_time }}
+    <a href="{% url 'cancel_booking' b.id %}">Отменить</a>
+  </li>
+  {% endfor %}
+</ul>

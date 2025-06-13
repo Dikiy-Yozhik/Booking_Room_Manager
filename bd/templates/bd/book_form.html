@@ -1,0 +1,12 @@
+<!-- templates/bd/book_form.html -->
+
+{% extends "base.html" %}
+{% block content %}
+<h2>Форма бронирования</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Забронировать</button>
+</form>
+{% endblock %}

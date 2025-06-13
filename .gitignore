@@ -1,0 +1,46 @@
+# Django .gitignore
+
+# Виртуальное окружение
+venv/
+env/
+virtualenv/
+
+# База данных (SQLite3) — только если у тебя локальная dev-база
+db.sqlite3
+*.sqlite3
+
+# Миграции (если не нужно сохранять историю миграций в репе)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Статические и медиафайлы (для production они собираются через collectstatic)
+/static/
+/media/
+
+# Логи
+*.log
+*.pot
+*.pyc
+__pycache__
+*.swp
+*~
+*.bak
+
+# Настройки среды (например, .env)
+.env
+.env.local
+.env.development
+.env.production
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# macOS
+.DS_Store
