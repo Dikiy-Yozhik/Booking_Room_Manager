@@ -23,7 +23,9 @@
                     {% if room.booked %}
                         <div class="busy">Занято</div>
                     {% else %}
-                        <a href="{% url 'book_room' %}?room={{ room.id }}&time={{ slot.time }}" class="free">Свободно</a>
+                    <a href="{% url 'book_room' %}?room={{ room.id }}&time={{ slot.time|time:'H:i' }}">
+                        Свободно
+                    </a>
                     {% endif %}
                 </td>
             {% endfor %}
