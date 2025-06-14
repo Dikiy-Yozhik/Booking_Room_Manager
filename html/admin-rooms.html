@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomBot - Управление комнатами</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1>RoomBot <span class="admin-badge">Администратор</span></h1>
+            <nav>
+                <a href="admin.html">Все брони</a>
+                <a href="admin-rooms.html" class="active">Управление комнатами</a>
+                <a href="login.html" class="logout">Выйти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="admin-section">
+            <div class="admin-toolbar">
+                <h2>Управление переговорными комнатами</h2>
+                <button class="add-room-btn" id="addRoomBtn">+ Добавить комнату</button>
+            </div>
+
+            <div class="rooms-grid">
+                <div class="room-admin-card">
+                    <div class="room-admin-info">
+                        <h3>Комната 101</h3>
+                        <p><strong>Вместимость:</strong> 4 человека</p>
+                        <p><strong>Статус:</strong> <span class="status-active">Активна</span></p>
+                        <p><strong>Описание:</strong> Комната для небольших встреч</p>
+                    </div>
+                    <div class="room-admin-actions">
+                        <button class="edit-room-btn">Изменить</button>
+                        <button class="disable-room-btn">Отключить</button>
+                    </div>
+                </div>
+
+                <div class="room-admin-card">
+                    <div class="room-admin-info">
+                        <h3>Комната 102</h3>
+                        <p><strong>Вместимость:</strong> 6 человек</p>
+                        <p><strong>Статус:</strong> <span class="status-inactive">Неактивна</span></p>
+                        <p><strong>Описание:</strong> Основная переговорная</p>
+                    </div>
+                    <div class="room-admin-actions">
+                        <button class="edit-room-btn">Изменить</button>
+                        <button class="enable-room-btn">Активировать</button>
+                    </div>
+                </div>
+                <!-- Другие комнаты -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно добавления/редактирования комнаты -->
+    <div class="modal" id="roomModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalRoomTitle">Добавить новую комнату</h2>
+            
+            <form id="roomForm">
+                <div class="form-group">
+                    <label for="roomName">Название комнаты</label>
+                    <input type="text" id="roomName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roomCapacity">Вместимость (человек)</label>
+                    <input type="number" id="roomCapacity" min="1" max="20" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roomStatus">Статус</label>
+                    <select id="roomStatus">
+                        <option value="active">Активна</option>
+                        <option value="inactive">Неактивна</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roomDescription">Описание</label>
+                    <textarea id="roomDescription" rows="3"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Отмена</button>
+                    <button type="submit" class="save-btn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/admin-rooms.js"></script>
+</body>
+</html>

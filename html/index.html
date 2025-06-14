@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomBot - Бронирование</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1>RoomBot</h1>
+            <nav>
+                <a href="index.html" class="active">Бронирование</a>
+                <a href="bookings.html">Мои брони</a>
+                <a href="login.html" class="logout">Выйти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="filters">
+            <h2>Найти комнату</h2>
+            <div class="filter-group">
+                <label for="date">Дата</label>
+                <input type="date" id="date">
+            </div>
+            <div class="filter-group">
+                <label for="time">Время</label>
+                <select id="time">
+                    <option value="">Любое время</option>
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <!-- Добавьте другие временные слоты -->
+                </select>
+            </div>
+            <button class="search-btn">Найти</button>
+        </section>
+
+        <section class="rooms-list">
+            <div class="room-card">
+                <div class="room-info">
+                    <h3>Комната 101</h3>
+                    <p class="capacity">Вместимость: 4 человека</p>
+                    <p class="status available">Свободна</p>
+                </div>
+                <button class="book-btn">Забронировать</button>
+            </div>
+
+            <div class="room-card">
+                <div class="room-info">
+                    <h3>Комната 102</h3>
+                    <p class="capacity">Вместимость: 6 человек</p>
+                    <p class="status booked">Занята до 14:00</p>
+                </div>
+                <button class="book-btn" disabled>Недоступно</button>
+            </div>
+            <!-- Добавьте другие комнаты -->
+        </section>
+    </main>
+
+    <!-- Модальное окно бронирования -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Бронирование комнаты</h2>
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label for="roomName">Комната</label>
+                    <input type="text" id="roomName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="bookingDate">Дата</label>
+                    <input type="date" id="bookingDate">
+                </div>
+                <div class="form-group">
+                    <label for="bookingTime">Время</label>
+                    <select id="bookingTime">
+                        <option value="09:00">09:00 - 10:00</option>
+                        <option value="10:00">10:00 - 11:00</option>
+                        <!-- Добавьте другие временные слоты -->
+                    </select>
+                </div>
+                <button type="submit" class="confirm-btn">Подтвердить бронь</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

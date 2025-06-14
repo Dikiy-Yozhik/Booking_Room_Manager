@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomBot - Мои брони</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1>RoomBot</h1>
+            <nav>
+                <a href="index.html">Бронирование</a>
+                <a href="bookings.html" class="active">Мои брони</a>
+                <a href="login.html" class="logout">Выйти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="bookings-section">
+            <h2>Мои бронирования</h2>
+            
+            <div class="bookings-list">
+                <div class="booking-card">
+                    <div class="booking-info">
+                        <h3>Комната 101</h3>
+                        <p class="booking-time">15 июня 2023, 14:00 - 15:30</p>
+                        <p class="booking-status active">Активна</p>
+                    </div>
+                    <button class="cancel-btn">Отменить</button>
+                </div>
+
+                <div class="booking-card">
+                    <div class="booking-info">
+                        <h3>Комната 203</h3>
+                        <p class="booking-time">16 июня 2023, 10:00 - 11:00</p>
+                        <p class="booking-status completed">Завершена</p>
+                    </div>
+                </div>
+
+                <div class="booking-card">
+                    <div class="booking-info">
+                        <h3>Комната 105</h3>
+                        <p class="booking-time">17 июня 2023, 16:00 - 17:00</p>
+                        <p class="booking-status active">Активна</p>
+                    </div>
+                    <button class="cancel-btn">Отменить</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно подтверждения отмены -->
+    <div class="modal" id="cancelModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Отменить бронирование?</h2>
+            <p>Вы уверены, что хотите отменить бронирование комнаты <span id="cancelRoomName"></span>?</p>
+            <div class="modal-buttons">
+                <button class="confirm-cancel-btn">Да, отменить</button>
+                <button class="cancel-modal-btn">Нет, оставить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/booking.js"></script>
+</body>
+</html>
