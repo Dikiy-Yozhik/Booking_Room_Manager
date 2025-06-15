@@ -1,4 +1,4 @@
-# bd/forms.py
+# Booking_Room_Manager/forms.py
 
 from django import forms
 from .models import Booking

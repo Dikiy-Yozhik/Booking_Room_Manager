@@ -3,14 +3,32 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Room, Booking, TimeSlot
-from .forms import BookingForm
+from Booking_Room_Manager.models import Room, Booking, TimeSlot
+from Booking_Room_Manager.forms import BookingForm
 from django.utils import timezone
 from datetime import datetime
 from datetime import timedelta, time
 
+__all__ = (
+    "calendar_view",
+    "book_room",
+    "cancel_booking",
+    "profile_view",
+    "home",
+)
 
-# bd/views.py
+
+def home(request):
+    # Проверяем, авторизован ли пользователь
+    is_authenticated = request.user.is_authenticated
+
+    context = {
+        'is_authenticated': is_authenticated,
+        'is_student': is_authenticated and not request.user.is_staff,
+        'is_teacher': is_authenticated and hasattr(request.user, 'teacher_profile'),
+        'is_admin': is_authenticated and request.user.is_staff,
+    }
+    return render(request, 'Booking_Room_Manager/home.html', context)
 
 def calendar_view(request):
     rooms = Room.objects.all()
@@ -32,11 +50,12 @@ def calendar_view(request):
         time_slots.append(row)
 
     context = {
-        'time_slots': time_slo≠ts,
+        'time_slots': time_slots,
         'today': today
     }
 
-    return render(request, 'bd/calendar.html', context)
+    return render(request, 'Booking_Room_Manager/calendar.html', context)
+
 @login_required
 def book_room(request):
     initial = {}
@@ -75,10 +94,10 @@ def book_room(request):
                 booking.save()
                 messages.success(request, "Комната успешно забронирована!")
                 return redirect('profile')
-            except ValidationError as e:
+            except Exception as e:
                 messages.error(request, str(e))
 
-    return render(request, 'bd/book_form.html', {'form': form})
+    return render(request, 'Booking_Room_Manager/book_form.html', {'form': form})
 @login_required
 def cancel_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
@@ -91,4 +110,4 @@ def profile_view(request):
     bookings = Booking.objects.filter(
         user=request.user, is_active=True).order_by('-date')
 
-    return render(request, 'bd/profile.html', {'bookings': bookings})
+    return render(request, 'Booking_Room_Manager/profile.html', {'bookings': bookings})

@@ -1,4 +1,4 @@
-# bd/models.py
+# Booking_Room_Manager/models.py
 
 from django.db import models
 from django.contrib.auth.models import User
