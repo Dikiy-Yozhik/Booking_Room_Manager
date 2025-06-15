@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Система бронирования переговорных комнат</h1>
+
+    {% if is_authenticated %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Меню</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Общие кнопки для всех авторизованных -->
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'calendar_view' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-calendar-alt"></i> Календарь бронирований
+                        </a>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'profile_view' %}" class="btn btn-info btn-block">
+                            <i class="fas fa-list"></i> Мои бронирования
+                        </a>
+                    </div>
+
+                    <!-- Кнопки для студентов -->
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'book_room' %}" class="btn btn-success btn-block">
+                            <i class="fas fa-book"></i> Забронировать комнату
+                        </a>
+                    </div>
+
+                    <!-- Кнопки для администраторов -->
+                    {% if is_admin %}
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'add_room' %}" class="btn btn-warning btn-block">
+                            <i class="fas fa-plus-circle"></i> Добавить комнату
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'export_bookings' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-file-export"></i> Выгрузить бронирования
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>Пожалуйста, <a href="{% url 'login' %}">войдите</a> в систему для доступа к функциям бронирования.</p>
+            <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрируйтесь</a>.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

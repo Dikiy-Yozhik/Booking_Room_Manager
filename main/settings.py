@@ -103,14 +103,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_REDIRECT_URL = '/calendar/'
 LOGOUT_REDIRECT_URL = '/'
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Ваша папка со статикой
-]
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Для collectstatic
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
