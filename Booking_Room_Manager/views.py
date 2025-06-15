@@ -26,37 +26,101 @@ def home(request):
 def calendar_view(request):
     rooms = Room.objects.all()
     today = timezone.now().date()
+    week = [today + timedelta(days=i) for i in range(7)]
     times = [time(h, 0) for h in range(9, 18)]
-    bookings = Booking.objects.filter(date=today, is_active=True)
 
     is_admin = request.user.userprofile.role == 'admin' if hasattr(request.user, 'userprofile') else False
 
     time_slots = []
 
-    for t in times:
-        row = {'time': t.strftime("%H:%M"), 'rooms': []}
-        for room in rooms:
-            booking = bookings.filter(room=room, start_time=t).first()
-            is_booked = booking is not None
-            is_blocked = is_booked and booking.is_blocked
+    for d in week:
+        day = []
+        bookings = Booking.objects.filter(date=d, is_active=True)
+        for t in times:
+            row = {'time': t.strftime("%H:%M"), 'rooms': []}
+            for room in rooms:
+                booking = bookings.filter(room=room, start_time=t).first()
+                is_booked = booking is not None
+                is_blocked = is_booked and booking.is_blocked
 
-            row['rooms'].append({
-                'name': room.name,
-                'id': room.id,
-                'booked': is_booked,
-                'blocked': is_blocked,
-                'booking_id': booking.id if booking else None
-            })
-        time_slots.append(row)
+                row['rooms'].append({
+                    'name': room.name,
+                    'id': room.id,
+                    'booked': is_booked,
+                    'blocked': is_blocked,
+                    'booking_id': booking.id if booking else None
+                })
+            day.append(row)
+        time_slots.append(day)
 
+    # views.py
     context = {
-        'time_slots': time_slots,
+        'days': zip(week, time_slots),  # Объединяем даты и слоты
         'today': today,
-        'is_admin': False
+        'is_admin': is_admin
     }
 
     return render(request, 'Booking_Room_Manager/calendar.html', context)
 
+
+@login_required
+def block_slot(request, room_id, time, date):
+    # Проверка прав администратора
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'admin':
+        messages.error(request, 'Доступ запрещен')
+        return redirect('calendar_view')
+
+    try:
+        room = Room.objects.get(id=room_id)
+        start_time = datetime.strptime(time, "%H:%M").time()
+        date = datetime.strptime(date, "%Y-%m-%d").date()
+        end_time = (datetime.combine(date, start_time) + timedelta(hours=1)).time()
+
+        # Проверка на существующие брони
+        conflict = Booking.objects.filter(
+            room=room,
+            date=date,
+            start_time__lt=end_time,
+            end_time__gt=start_time,
+            is_active=True
+        ).exists()
+
+        if conflict:
+            messages.error(request, 'Найдены конфликтующие бронирования')
+            return redirect('calendar_view')
+
+        # Создание блокировки
+        Booking.objects.create(
+            room=room,
+            user=request.user,
+            date=date,
+            start_time=start_time,
+            end_time=end_time,
+            is_blocked=True,
+            is_active=True
+        )
+        messages.success(request, 'Временной слот заблокирован')
+    except Exception as e:
+        messages.error(request, f'Ошибка: {str(e)}')
+
+    return redirect('calendar_view')
+
+
+@login_required
+def unblock_slot(request, booking_id):
+    # Проверка прав администратора
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'admin':
+        messages.error(request, 'Доступ запрещен')
+        return redirect('calendar_view')
+
+    try:
+        booking = Booking.objects.get(id=booking_id, is_blocked=True)
+        booking.delete()
+        messages.success(request, 'Блокировка снята')
+    except Exception as e:
+        messages.error(request, f'Ошибка: {str(e)}')
+
+    return redirect('calendar_view')
 
 
 @login_required

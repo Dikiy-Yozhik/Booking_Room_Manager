@@ -13,5 +13,7 @@ urlpatterns = [
          views.reschedule_booking,
          name='reschedule_booking'),
     path('add-room/', views.add_room, name='add_room'),
-path('export-bookings/', views.export_bookings, name='export_bookings'),
+    path('export-bookings/', views.export_bookings, name='export_bookings'),
+    path('block/<int:room_id>/<str:time>/<str:date>/', views.block_slot, name='block_slot'),
+    path('unblock/<int:booking_id>/', views.unblock_slot, name='unblock_slot'),
 ]

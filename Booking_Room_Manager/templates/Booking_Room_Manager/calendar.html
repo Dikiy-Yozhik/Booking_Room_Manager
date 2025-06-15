@@ -3,6 +3,7 @@
 
 {% block content %}
 <style>
+    /* Стили из исходного примера без изменений */
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f8f9fa;
@@ -87,44 +88,57 @@
 </style>
 
 <body>
-    <h2>Календарь переговорных комнат - {{ today|date:"d.m.Y" }}</h2>
+    <h2>Календарь переговорных комнат (Неделя {{ week.0|date:"d.m" }}-{{ week.6|date:"d.m.Y" }})</h2>
+
+    {% for date, day_slots in days %}
+    <h3>{{ date|date:"l"|title }}, {{ date|date:"d.m.Y" }}</h3>
 
     <table>
         <thead>
             <tr>
                 <th>Время</th>
-                {% for room in time_slots.0.rooms %}
+                {% for room in day_slots.0.rooms %}
                 <th>{{ room.name }}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for slot in time_slots %}
+            {% for slot in day_slots %}
             <tr>
                 <td>{{ slot.time }}</td>
                 {% for room in slot.rooms %}
-                    <td>
-                        {% if room.blocked %}
-                            <div class="blocked">Заблокировано</div>
-                            {% if is_admin %}
-                                <a href="{% url 'unblock_slot' room.booking_id %}" class="admin-btn">Разблокировать</a>
-                            {% endif %}
-                        {% elif room.booked %}
-                            <div class="busy">Занято</div>
-                        {% else %}
-                            <a href="{% url 'book_room' %}?room={{ room.id }}&time={{ slot.time }}" class="free">
-                                Свободно
+                <td>
+                    {% if room.blocked %}
+                        <div class="blocked">Заблокировано</div>
+                        {% if is_admin %}
+                            <a href="{% url 'unblock_slot' room.booking_id %}"
+                               class="admin-btn"
+                               onclick="return confirm('Вы уверены?')">
+                                Разблокировать
                             </a>
-                            {% if is_admin %}
-                                <a href="{% url 'block_slot' room.id slot.time %}" class="admin-btn">Заблокировать</a>
-                            {% endif %}
                         {% endif %}
-                    </td>
+                    {% elif room.booked %}
+                        <div class="busy">Занято</div>
+                    {% else %}
+                        <a href="{% url 'book_room' %}?room={{ room.id }}&time={{ slot.time }}&date={{ date|date:'Y-m-d' }}"
+                           class="free">
+                            Свободно
+                        </a>
+                        {% if is_admin %}
+                            <a href="{% url 'block_slot' room.id slot.time date|date:'Y-m-d' %}"
+                               class="admin-btn"
+                               onclick="return confirm('Заблокировать слот?')">
+                                Заблокировать
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </td>
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% endfor %}
 </body>
 </html>
 {% endblock %}
