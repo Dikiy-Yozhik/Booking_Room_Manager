@@ -12,4 +12,6 @@ urlpatterns = [
     path('booking/<int:booking_id>/reschedule/',
          views.reschedule_booking,
          name='reschedule_booking'),
+    path('add-room/', views.add_room, name='add_room'),
+path('export-bookings/', views.export_bookings, name='export_bookings'),
 ]

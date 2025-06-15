@@ -36,6 +36,7 @@ class Booking(models.Model):
     end_time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_blocked = models.BooleanField(default=False, verbose_name='Административная блокировка')
 
     def clean(self):
         overlapping = Booking.objects.filter(
@@ -62,3 +63,6 @@ class Booking(models.Model):
             [self.user.email],
             fail_silently=False,
         )
+
+
+# models.py

@@ -1,8 +1,15 @@
+<!-- profile.html -->
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Мои бронирования</h2>
+    <h2>{% if is_admin %}Все бронирования{% else %}Мои бронирования{% endif %}</h2>
+
+    {% if is_admin %}
+    <div class="alert alert-warning mb-3">
+        <strong>Режим администратора:</strong> Вы можете просматривать и удалять все бронирования
+    </div>
+    {% endif %}
 
     <div class="list-group">
         {% for booking in bookings %}
@@ -14,35 +21,47 @@
                         {{ booking.date|date:"d.m.Y" }}
                         {{ booking.start_time|time:"H:i" }}-{{ booking.end_time|time:"H:i" }}
                     </p>
-                    <small class="text-muted">{{ booking.purpose }}</small>
+                    <small class="text-muted">Цель: {{ booking.purpose }}</small>
+                    {% if is_admin or booking.user != request.user %}
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Забронировал: {{ booking.user.get_full_name|default:booking.user.username }}
+                        </small>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="btn-group">
-                    {% if is_teacher %}
+                    {% if is_teacher or is_admin or booking.user == request.user %}
                     <a href="{% url 'reschedule_booking' booking.id %}"
                        class="btn btn-sm btn-outline-warning">
                         Перенести
                     </a>
+                    {% endif %}
+
+                    {% if is_teacher or is_admin %}
                     <button class="btn btn-sm btn-outline-info share-btn"
                             data-booking-id="{{ booking.id }}">
                         Поделиться
                     </button>
                     {% endif %}
+
                     <a href="{% url 'cancel_booking' booking.id %}"
-                       class="btn btn-sm btn-outline-danger">
-                        Отменить
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('Вы уверены, что хотите {% if is_admin %}удалить{% else %}отменить{% endif %} это бронирование?');">
+                        {% if is_admin %}Удалить{% else %}Отменить{% endif %}
                     </a>
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="alert alert-info">
-            У вас нет активных бронирований
+            {% if is_admin %}Нет активных бронирований{% else %}У вас нет активных бронирований{% endif %}
         </div>
         {% endfor %}
     </div>
 </div>
 
-{% if is_teacher %}
+{% if is_teacher or is_admin %}
 <script>
 // Генерация ссылки для общего доступа
 document.querySelectorAll('.share-btn').forEach(btn => {
@@ -50,7 +69,8 @@ document.querySelectorAll('.share-btn').forEach(btn => {
         const bookingId = this.dataset.bookingId;
         const shareLink = `${window.location.origin}/booking/${bookingId}/`;
         navigator.clipboard.writeText(shareLink)
-            .then(() => alert('Ссылка скопирована в буфер обмена:\n' + shareLink));
+            .then(() => alert('Ссылка скопирована в буфер обмена:\n' + shareLink))
+            .catch(() => alert('Не удалось скопировать ссылку'));
     });
 });
 </script>

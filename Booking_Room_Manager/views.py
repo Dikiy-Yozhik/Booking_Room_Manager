@@ -2,18 +2,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from Booking_Room_Manager.models import Room, Booking, TimeSlot
-from Booking_Room_Manager.forms import BookingForm
+from Booking_Room_Manager.forms import BookingForm, RoomForm
 from django.utils import timezone
 from datetime import datetime, timedelta, time
+
+from django.http import HttpResponse
+import csv
 
 
 def home(request):
     is_authenticated = request.user.is_authenticated
     is_teacher = is_authenticated and request.user.userprofile.role == 'teacher'
+    is_admin = is_authenticated and request.user.userprofile.role == 'admin'
 
     context = {
         'is_authenticated': is_authenticated,
         'is_teacher': is_teacher,
+        'is_admin' : is_admin,
     }
     return render(request, 'Booking_Room_Manager/home.html', context)
 
@@ -21,28 +26,37 @@ def home(request):
 def calendar_view(request):
     rooms = Room.objects.all()
     today = timezone.now().date()
-    times = [time(h, 0) for h in range(9, 18)] 
+    times = [time(h, 0) for h in range(9, 18)]
     bookings = Booking.objects.filter(date=today, is_active=True)
+
+    is_admin = request.user.userprofile.role == 'admin' if hasattr(request.user, 'userprofile') else False
 
     time_slots = []
 
     for t in times:
         row = {'time': t.strftime("%H:%M"), 'rooms': []}
         for room in rooms:
-            is_booked = bookings.filter(room=room, start_time=t).exists()
+            booking = bookings.filter(room=room, start_time=t).first()
+            is_booked = booking is not None
+            is_blocked = is_booked and booking.is_blocked
+
             row['rooms'].append({
                 'name': room.name,
                 'id': room.id,
-                'booked': is_booked
+                'booked': is_booked,
+                'blocked': is_blocked,
+                'booking_id': booking.id if booking else None
             })
         time_slots.append(row)
 
     context = {
         'time_slots': time_slots,
-        'today': today
+        'today': today,
+        'is_admin': False
     }
 
     return render(request, 'Booking_Room_Manager/calendar.html', context)
+
 
 
 @login_required
@@ -137,13 +151,66 @@ def cancel_booking(request, booking_id):
         return redirect('profile_view')
 
 
+# views.py
 @login_required
 def profile_view(request):
-    bookings = Booking.objects.filter(
-        user=request.user, is_active=True).order_by('-date')
-
     is_authenticated = request.user.is_authenticated
     is_teacher = is_authenticated and request.user.userprofile.role == 'teacher'
+    is_admin = is_authenticated and request.user.userprofile.role == 'admin'
 
-    return render(request, 'Booking_Room_Manager/profile.html', {'bookings': bookings,
-                                                                 'is_teacher': is_teacher,})
+    if is_admin:
+        # Для администратора показываем все активные бронирования
+        bookings = Booking.objects.filter(is_active=True).order_by('-date')
+    else:
+        # Для обычных пользователей только их бронирования
+        bookings = Booking.objects.filter(
+            user=request.user, is_active=True).order_by('-date')
+
+    return render(request, 'Booking_Room_Manager/profile.html', {
+        'bookings': bookings,
+        'is_teacher': is_teacher,
+        'is_admin': is_admin
+    })
+
+
+@login_required
+def add_room(request):
+    # Проверка прав администратора
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'admin':
+        messages.error(request, 'У вас нет прав для выполнения этого действия')
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = RoomForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Комната успешно добавлена')
+            return redirect('calendar_view')
+    else:
+        form = RoomForm()
+
+    return render(request, 'Booking_Room_Manager/add_room.html', {'form': form})
+
+
+@login_required
+def export_bookings(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'admin':
+        return redirect('home')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="bookings_{datetime.now().strftime("%Y-%m-%d")}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Комната', 'Дата', 'Время начала', 'Время окончания', 'Пользователь', 'Цель'])
+
+    bookings = Booking.objects.filter(is_active=True).select_related('room', 'user')
+    for booking in bookings:
+        writer.writerow([
+            booking.room.name,
+            booking.date.strftime("%d.%m.%Y"),
+            booking.start_time.strftime("%H:%M"),
+            booking.end_time.strftime("%H:%M"),
+            booking.user.get_full_name() or booking.user.username,
+        ])
+
+    return response
