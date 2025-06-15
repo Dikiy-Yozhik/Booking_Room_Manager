@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Система бронирования переговорных</h1>
+    
+    {% if user.is_authenticated %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Доступные действия</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'calendar_view' %}" class="btn btn-primary btn-lg">
+                            Просмотр календаря
+                        </a>
+                        <a href="{% url 'book_room' %}" class="btn btn-outline-primary btn-lg">
+                            Новая бронь
+                        </a>
+                        <a href="{% url 'profile_view' %}" class="btn btn-outline-secondary btn-lg">
+                            Мои бронирования
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="mb-4">Для работы с системой требуется авторизация</h4>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary">Регистрация</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,11 +1,15 @@
-# accounts/urls.py
+# Booking_Room_Manager/urls.py
 
 from django.urls import path
-from . import views
-from django.contrib.auth import views as auth_views
+from Booking_Room_Manager import views
 
 urlpatterns = [
-    path('register/', views.register_view, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', views.logout_view, name='logout'),
+    path('calendar/', views.calendar_view, name='calendar_view'),
+    path('book/', views.book_room, name='book_room'),
+    path('cancel/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
+    path('profile/', views.profile_view, name='profile_view'),
+    path("", views.home, name="home"),
+    path('booking/<int:booking_id>/reschedule/',
+         views.reschedule_booking,
+         name='reschedule_booking'),
 ]
