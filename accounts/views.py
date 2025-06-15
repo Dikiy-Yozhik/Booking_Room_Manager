@@ -1,9 +1,8 @@
-# accounts/views.py
-
 from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.contrib.auth import logout
 from django.contrib import messages
+
 
 def register_view(request):
     if request.method == 'POST':
@@ -16,6 +15,7 @@ def register_view(request):
         form = RegisterForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
 
 def logout_view(request):
     logout(request)

@@ -1,45 +1,37 @@
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from Booking_Room_Manager.models import Room, Booking, TimeSlot
 from Booking_Room_Manager.forms import BookingForm
 from django.utils import timezone
-from datetime import datetime
-from datetime import timedelta, time
-
-__all__ = (
-    "calendar_view",
-    "book_room",
-    "cancel_booking",
-    "profile_view",
-    "home",
-)
+from datetime import datetime, timedelta, time
 
 
 def home(request):
-    # Проверяем, авторизован ли пользователь
     is_authenticated = request.user.is_authenticated
+    is_student = is_authenticated and request.user.userprofile.role == 'student'
+    is_teacher = is_authenticated and request.user.userprofile.role == 'teacher'
+    is_admin = is_authenticated and request.user.userprofile.role == 'admin'
 
     context = {
         'is_authenticated': is_authenticated,
-        'is_student': is_authenticated and not request.user.is_staff,
-        'is_teacher': is_authenticated and hasattr(request.user, 'teacher_profile'),
-        'is_admin': is_authenticated and request.user.is_staff,
+        'is_student': is_student,
+        'is_teacher': is_teacher,
+        'is_admin': is_admin,
     }
     return render(request, 'Booking_Room_Manager/home.html', context)
+
 
 def calendar_view(request):
     rooms = Room.objects.all()
     today = timezone.now().date()
-    times = [time(h, 0) for h in range(9, 18)]  # 9:00 - 17:00
+    times = [time(h, 0) for h in range(9, 18)] 
     bookings = Booking.objects.filter(date=today, is_active=True)
 
     time_slots = []
 
     for t in times:
-        row = {'time': t.strftime("%H:%M"), 'rooms': []}  
+        row = {'time': t.strftime("%H:%M"), 'rooms': []}
         for room in rooms:
             is_booked = bookings.filter(room=room, start_time=t).exists()
             row['rooms'].append({
@@ -55,6 +47,7 @@ def calendar_view(request):
     }
 
     return render(request, 'Booking_Room_Manager/calendar.html', context)
+
 
 @login_required
 def book_room(request):
@@ -93,17 +86,20 @@ def book_room(request):
             try:
                 booking.save()
                 messages.success(request, "Комната успешно забронирована!")
-                return redirect('profile')
+                return redirect('profile_view')
             except Exception as e:
                 messages.error(request, str(e))
 
     return render(request, 'Booking_Room_Manager/book_form.html', {'form': form})
+
+
 @login_required
 def cancel_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     booking.cancel_booking()
     messages.success(request, "Бронь успешно отменена.")
-    return redirect('profile')
+    return redirect('profile_view')
+
 
 @login_required
 def profile_view(request):
