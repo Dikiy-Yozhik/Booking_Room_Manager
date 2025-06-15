@@ -1,17 +1,8 @@
 <!-- templates/Booking_Room_Manager/calendar.html -->
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Календарь бронирования</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        td, th { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        .free { background-color: #c8e6c9; cursor: pointer; }
-        .busy { background-color: #ffcdd2; }
-    </style>
-</head>
+{% extends 'base.html' %}
+
+{% block content %}
 <body>
     <h2>Календарь переговорных комнат</h2>
     <table>
@@ -34,3 +25,4 @@
     </table>
 </body>
 </html>
+{% endblock %}

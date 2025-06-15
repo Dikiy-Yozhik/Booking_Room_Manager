@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Перенос брони</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Текущая бронь:</h5>
+            <p>
+                {{ booking.room.name }}<br>
+                {{ booking.date|date:"d.m.Y" }} 
+                {{ booking.start_time|time:"H:i" }}-{{ booking.end_time|time:"H:i" }}
+            </p>
+        </div>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Новая дата:</label>
+            <input type="date" name="new_date" 
+                   value="{{ booking.date|date:'Y-m-d' }}" 
+                   class="form-control" required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Новое время начала:</label>
+            <input type="time" name="new_time"
+                   value="{{ booking.start_time|time:'H:i' }}"
+                   class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Новое время окончания:</label>
+            <input type="time" name="new_end_time"
+                   value="{{ booking.end_time|time:'H:i' }}"
+                   class="form-control" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{% url 'profile_view' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

@@ -9,15 +9,11 @@ from datetime import datetime, timedelta, time
 
 def home(request):
     is_authenticated = request.user.is_authenticated
-    is_student = is_authenticated and request.user.userprofile.role == 'student'
     is_teacher = is_authenticated and request.user.userprofile.role == 'teacher'
-    is_admin = is_authenticated and request.user.userprofile.role == 'admin'
 
     context = {
         'is_authenticated': is_authenticated,
-        'is_student': is_student,
         'is_teacher': is_teacher,
-        'is_admin': is_admin,
     }
     return render(request, 'Booking_Room_Manager/home.html', context)
 
@@ -48,6 +44,43 @@ def calendar_view(request):
 
     return render(request, 'Booking_Room_Manager/calendar.html', context)
 
+
+@login_required
+def reschedule_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+
+    if request.method == 'POST':
+        new_time = request.POST.get('new_time')
+        new_end_time = request.POST.get('new_end_time')
+        new_date = request.POST.get('new_date')
+
+        try:
+            # Преобразуем строки времени в объекты time
+            start_time_obj = datetime.strptime(new_time, "%H:%M").time()
+            end_time_obj = datetime.strptime(new_end_time, "%H:%M").time()
+
+            # Проверяем, что время окончания позже времени начала
+            if end_time_obj <= start_time_obj:
+                messages.error(request, "Время окончания должно быть позже времени начала")
+                return redirect('reschedule_booking', booking_id=booking.id)
+
+            # Обновляем бронь
+            booking.date = new_date
+            booking.start_time = start_time_obj
+            booking.end_time = end_time_obj
+            booking.save()
+
+            messages.success(request, "Бронь успешно перенесена!")
+            return redirect('profile_view')
+
+        except ValueError:
+            messages.error(request, "Неверный формат времени. Используйте ЧЧ:ММ")
+        except Exception as e:
+            messages.error(request, f"Ошибка: {str(e)}")
+
+    return render(request, 'Booking_Room_Manager/reschedule.html', {
+        'booking': booking
+    })
 
 @login_required
 def book_room(request):
@@ -95,10 +128,13 @@ def book_room(request):
 
 @login_required
 def cancel_booking(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-    booking.cancel_booking()
-    messages.success(request, "Бронь успешно отменена.")
-    return redirect('profile_view')
+    try:
+        booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+        booking.delete()
+        return redirect('profile_view')
+    except Exception as e:
+        messages.error(request, f"Ошибка при удалении брони: {str(e)}")
+        return redirect('profile_view')
 
 
 @login_required
@@ -106,4 +142,8 @@ def profile_view(request):
     bookings = Booking.objects.filter(
         user=request.user, is_active=True).order_by('-date')
 
-    return render(request, 'Booking_Room_Manager/profile.html', {'bookings': bookings})
+    is_authenticated = request.user.is_authenticated
+    is_teacher = is_authenticated and request.user.userprofile.role == 'teacher'
+
+    return render(request, 'Booking_Room_Manager/profile.html', {'bookings': bookings,
+                                                                 'is_teacher': is_teacher,})
